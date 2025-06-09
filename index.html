@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Agendamento de Sobrancelhas</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f6f6f6; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        label { display: block; margin: 8px 0 4px; }
+        input[type="text"], input[type="date"], input[type="time"] { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 8px 16px; background: #ff69b4; color: #fff; border: none; cursor: pointer; }
+        .agendamentos { margin-top: 20px; }
+        .item { background: #fff; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Agendamento de Atendimentos</h1>
+    <form id="form-agendamento">
+        <label for="nome">Nome do cliente</label>
+        <input id="nome" type="text" required>
+        <label for="data">Data</label>
+        <input id="data" type="date" required>
+        <label for="hora">Hora</label>
+        <input id="hora" type="time" required>
+        <button type="submit">Agendar</button>
+    </form>
+    <div class="agendamentos" id="lista-agendamentos"></div>
+
+    <script>
+        const form = document.getElementById('form-agendamento');
+        const lista = document.getElementById('lista-agendamentos');
+        const STORAGE_KEY = 'agendamentos';
+
+        function carregarAgendamentos() {
+            const items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            lista.innerHTML = '';
+            items.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `<strong>${item.nome}</strong> - ${item.data} às ${item.hora}`;
+                const btn = document.createElement('button');
+                btn.textContent = 'Excluir';
+                btn.onclick = () => {
+                    items.splice(idx, 1);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+                    carregarAgendamentos();
+                };
+                div.appendChild(btn);
+                lista.appendChild(div);
+            });
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const novo = {
+                nome: document.getElementById('nome').value,
+                data: document.getElementById('data').value,
+                hora: document.getElementById('hora').value
+            };
+            const items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            items.push(novo);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+            form.reset();
+            carregarAgendamentos();
+        });
+
+        carregarAgendamentos();
+    </script>
+</body>
+</html>
